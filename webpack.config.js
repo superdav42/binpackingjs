@@ -1,23 +1,10 @@
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-
-let libraryName = 'BinPacking',
-	plugins = [],
-	outputFile;
-const env = "build";
-
-if (env === 'build') {
-	plugins.push(
-		new UglifyJSPlugin({
-			sourceMap: true
-		})
-	);
-	outputFile = `[name].min.js`;
-} else {
-	outputFile = `[name].js`;
-}
+const isMinify = !!process.env.BUILD_MINIFY;
 
 module.exports = {
 	context: __dirname + '/src',
+	optimization: {
+		minimize: isMinify
+	},
 	entry: {
 		BP2D: './2D',
 		BP3D: './3D',
@@ -25,8 +12,8 @@ module.exports = {
 	},
 	output: {
 		path: __dirname + '/dist',
-		filename: outputFile,
-		library: libraryName,
+		filename: isMinify ? '[name].min.js' : '[name].js',
+		library: 'BinPacking',
 		libraryTarget: 'umd',
 		umdNamedDefine: true,
 		globalObject: 'this'
@@ -40,6 +27,5 @@ module.exports = {
 			}
 		]
 	},
-	plugins: plugins,
-	mode: env === 'build' ? 'production' : 'development'
+	mode: isMinify ? 'production' : 'development'
 };

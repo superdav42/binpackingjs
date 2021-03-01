@@ -1,5 +1,8 @@
 const assert = require('assert');
-const BinPacking = require('../dist/BinPacking').BP3D;
+const BinPacking = require('../src/3D');
+const { enableLog, createLogger } = require("../src/lib/log");
+const log = createLogger("[3DTest]");
+enableLog(!!process.env.DEBUG);
 
 const {
   Item,
@@ -35,15 +38,15 @@ const testDatas = [
     }
   },
   {
-    name: 'Test three items fit into smaller bin.',
+    name: 'Test three items fit into smaller bin after being rotated.',
     bins: [
       new Bin("1. Le petite box", 296, 296, 8, 1000),
       new Bin("2. Le grande box", 2960, 2960, 80, 10000),
     ],
     items: [
       new Item("Item 1", 250, 250, 2, 200),
-      new Item("Item 2", 250, 250, 2, 200),
-      new Item("Item 3", 250, 250, 2, 200),
+      new Item("Item 2", 250, 2, 250, 200),
+      new Item("Item 3", 2, 250, 250, 200),
     ],
     expectation: function (packer) {
       return packer.bins[0].name === '1. Le petite box'
@@ -143,6 +146,35 @@ const testDatas = [
           && packer.bins[0].name === 'Small Bin'
           && packer.bins[0].items.length === 1
           && packer.unfitItems.length === 0;
+    }
+  },
+  {
+    name: 'First item fits without rotation but needs to be rotated to fit all items.',
+    bins: [
+      new Bin('USPS Medium Flat Rate Box (Top Loading)', 11, 8.5, 5.5, 1500),
+    ],
+    items: [
+      new Item('Item 1', 8.1, 5.2, 2.2, 20),
+      new Item('Item 2', 8.1, 5.2, 3.3, 20),
+    ],
+    expectation: function (packer) {
+      return packer.bins[0].items.length === 2
+        && packer.unfitItems.length === 0;
+    }
+  },
+  {
+    // https://github.com/Automattic/woocommerce-services/issues/1293
+    name: 'Floating point arithmetic is handled correctly.',
+    bins: [
+      new Bin("Bin 1", 12, 12, 5.5, 70),
+    ],
+    items: [
+      new Item("Item 1", 12, 12, .005, .0375),
+      new Item("Item 2", 12, 12, .005, .0375),
+    ],
+    expectation: function (packer) {
+      return packer.bins[0].items.length === 2
+        && packer.unfitItems.length === 0;
     }
   }
 ];

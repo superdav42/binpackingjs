@@ -1,3 +1,5 @@
+import { factoredInteger } from './util';
+
 export const RotationType_WHD = 0;
 export const RotationType_HWD = 1;
 export const RotationType_HDW = 2;
@@ -34,10 +36,10 @@ export default class Item {
 
   constructor(name, w, h, d, wg, allowedRotation) {
     this.name = name;
-    this.width = w;
-    this.height = h;
-    this.depth = d;
-    this.weight = wg;
+    this.width = factoredInteger( w );
+    this.height = factoredInteger( h );
+    this.depth = factoredInteger( d );
+    this.weight = factoredInteger( wg );
     this.allowedRotation = allowedRotation ? allowedRotation : this.allowedRotation;
   }
 
@@ -102,6 +104,10 @@ export default class Item {
 
   getVolume() {
     return this.getWidth() * this.getHeight() * this.getDepth();
+  }
+
+  toString() {
+    return `Item:${this.name} (${this.getRotationTypeString()} = ${this.getDimension().join('x')}, Wg. = ${this.weight})`;
   }
 }
 
